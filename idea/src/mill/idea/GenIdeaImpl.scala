@@ -523,20 +523,36 @@ case class GenIdeaImpl(
             compilerOutput,
             evaluator
           ) =>
-        val Seq(
-          resourcesPathRefs: Seq[PathRef],
-          generatedSourcePathRefs: Seq[PathRef],
-          allSourcesPathRefs: Seq[PathRef]
-        ) = evaluator.evaluate(
+
+        val ret1 = evaluator.evaluate(
           Agg(
             mod.resources,
+          )
+        )
+          .values
+          .map(_.value)
+        val ret2 = evaluator.evaluate(
+          Agg(
             mod.generatedSources,
+          )
+        )
+          .values
+          .map(_.value)
+
+        val ret3 = evaluator.evaluate(
+          Agg(
             mod.allSources
           )
         )
           .values
           .map(_.value)
 
+
+        val Seq(
+          resourcesPathRefs: Seq[PathRef],
+          generatedSourcePathRefs: Seq[PathRef],
+          allSourcesPathRefs: Seq[PathRef]
+        ) =  Seq(ret1.headOption.getOrElse(Nil), ret2.head, ret3.head)
         val generatedSourcePaths = generatedSourcePathRefs.map(_.path)
         val normalSourcePaths = (allSourcesPathRefs
           .map(_.path)
